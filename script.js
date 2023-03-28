@@ -3,24 +3,20 @@
 // in the html.
 $(function () {
 
-  var timeRange = [9,18];
+  // localStorage.clear();
 
-  // Pulls ID of parent element of the button pushed and saves its innerHTML into local storage.
-  $(".saveBtn").click(function(){
-    var hourId = $(this).parent().attr("id");
-    localStorage.setItem(hourId, $('#' + hourId).innerHTML); // Saves it.
-    console.log($('#' + hourId).innerHTML);
-  });
+  var timeRange = [9,18];
   
   var timeClass = '';
   var currentTime = new Date();
   var day = currentTime.getDate();
+  var mth = currentTime.getMonth() + 1;
+  var yr = currentTime.getFullYear();
   var crnt = currentTime.getHours();
   var html = '';
+  var text = '';
 
-  for (let i = timeRange[0]; i < timeRange[1]; i++) {
-    $("#mainDiv").append('<div id="hour-' + i + '"></div>');
-  }
+  $("#currentDay").append(mth + "-" + day + "-" + yr);
 
   for (let i = timeRange[0]; i < timeRange[1]; i++) {
     // Get current time, sets timeClass
@@ -28,22 +24,30 @@ $(function () {
     if(crnt == i){timeClass = 'present';}
     if(crnt < i){timeClass = 'future';}
 
-    // Get relevant info from storage if available
-    if(localStorage.getItem("hour-" + i)){ html = localStorage.getItem("hour-" + i); }
-    else {
-      console.log(i);
-      html = `
-      <div class="row time-block ` + timeClass + `">
-            <div class="col-2 col-md-1 hour text-center py-3">` + i + `:00</div>
-            <textarea class="col-8 col-md-10 description" rows="3"> </textarea>
-            <button class="btn saveBtn col-2 col-md-1" aria-label="save">
-              <i class="fas fa-save" aria-hidden="true"></i>
-            </button>
-      </div>
-    `;
-    }
-    $('#hour-' + i).append(html);
+    $("#mainDiv").append('<div id="hour-' + i + '" class="row time-block ' + timeClass + '"></div>');
   }
+
+  for (let i = timeRange[0]; i < timeRange[1]; i++) {
+
+    // Get relevant info from storage if available
+    if(localStorage.getItem("hour-" + i)){ text = localStorage.getItem("hour-" + i); }
+    html = `
+          <div class="col-2 col-md-1 hour text-center py-3">` + i + `:00</div>
+          <textarea class="col-8 col-md-10 description" rows="3">` + text + `</textarea>
+          <button class="btn saveBtn col-2 col-md-1" aria-label="save">
+            <i class="fas fa-save" aria-hidden="true"></i>
+          </button>
+    `;
+    $('#hour-' + i).append(html);
+    text = '';
+  }
+
+  // Pulls ID of parent element of the button pushed and saves its innerHTML into local storage.
+  $(".saveBtn").click(function(){
+    var hourId = $(this).parent().attr("id");
+    var el = document.getElementById(hourId).children[1];
+    localStorage.setItem(hourId, el.value); // Saves it.
+  });
   // TODO: Add a listener for click events on the save button. This code should
   // use the id in the containing time-block as a key to save the user input in
   // local storage. HINT: What does `this` reference in the click listener
